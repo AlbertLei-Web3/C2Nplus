@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@nomicfoundation/hardhat-ignition": "^0.15.9",
+    "@openzeppelin/contracts": "^5.0.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/dotenv": "^6.1.1",
+    "hardhat": "^2.22.18"
+  }
+}
