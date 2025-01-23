@@ -9,9 +9,8 @@ contract Factory is Ownable {
 
     address[] public farms; // 存储所有 Farm 合约地址的数组
 
-    address public constant Ownerable = 0x0d87d8E1def9cA4A5f1BE181dc37c9ed9622c8d5; // 使用 public 和 constant 关键字
 
-    constructor() Ownable(Ownerable) {
+    constructor() Ownable(msg.sender) {
         // 初始化 Ownable 合约
     }
 
@@ -19,13 +18,15 @@ contract Factory is Ownable {
         IERC20 _rewardToken,
         uint256 _rewardPerSecond,
         uint256 _startTime
-    ) external onlyOwner returns (address) {
+    ) external  returns (address) {
         Farm farm = new Farm(
             _rewardToken,
             _rewardPerSecond,
             _startTime,
             address(this) // 这里是 Factory 合约的地址，成为 Farm 合约的所有者
         );
+
+        farm.transferOwnership(msg.sender); // 将 Farm 合约的所有者设置为 msg.sender
         
         farms.push(address(farm)); // 将新创建的 Farm 合约地址添加到 farms 数组中   
         emit FarmCreated(address(farm), address(_rewardToken)); // 触发 FarmCreated 事件

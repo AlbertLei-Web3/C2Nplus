@@ -37,14 +37,13 @@ contract Farm is Ownable, ReentrancyGuard, Pausable {
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event Compound(address indexed user, uint256 indexed pid, uint256 amount);
 
-    address public constant Ownerable = 0x0d87d8E1def9cA4A5f1BE181dc37c9ed9622c8d5;
 
     constructor(
         IERC20 _rewardToken,
         uint256 _rewardPerSecond,
         uint256 _startTime,
         address _factoryAddress
-    ) Ownable(Ownerable) {
+    ) Ownable(msg.sender) {
         rewardToken = _rewardToken;
         rewardPerSecond = _rewardPerSecond;
         startTime = _startTime;
