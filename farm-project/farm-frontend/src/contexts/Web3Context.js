@@ -51,9 +51,21 @@ export function Web3Provider({ children }) {
         }
     };
 
-    // 监听账户变化 listen for account changes
     useEffect(() => {
         if (window.ethereum) {
+            // 初始化 provider
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            setProvider(provider);
+            
+            // 请求已连接的账户
+            window.ethereum.request({ method: 'eth_accounts' })
+                .then(accounts => {
+                    if (accounts.length > 0) {
+                        setAccount(accounts[0]);
+                    }
+                });
+    
+            // 监听账户变化
             window.ethereum.on('accountsChanged', (accounts) => {
                 if (accounts.length > 0) {
                     setAccount(accounts[0]);
@@ -63,6 +75,7 @@ export function Web3Provider({ children }) {
             });
         }
     }, []);
+    
 
     return (
         <Web3Context.Provider value={{
@@ -79,5 +92,9 @@ export function Web3Provider({ children }) {
 }
 
 export function useWeb3() {
-    return useContext(Web3Context);
+    const context = useContext(Web3Context);
+    if (context === undefined) {
+        throw new Error('useWeb3 must be used within a Web3Provider');
+    }
+    return context;
 }

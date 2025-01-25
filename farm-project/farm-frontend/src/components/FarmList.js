@@ -11,6 +11,7 @@ import {
     Input
 } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/toast';
+import { Alert, AlertDescription } from '@chakra-ui/react';
 
 
 export default function FarmList() {
@@ -26,7 +27,21 @@ export default function FarmList() {
             );
             setFarmContracts(contracts);
         }
-    }, [signer, farms]);
+
+        console.log("Current account:", account);
+        console.log("Current farms:", farms);
+
+    }, [signer, farms, account]);
+
+    if (!account) {
+        return (
+            <Alert status="warning">
+                <AlertDescription>
+                Please connect your wallet first
+                </AlertDescription>
+            </Alert>
+        );
+    }
 
     const handleDeposit = async (farmContract, amount, index) => {
         try {
@@ -51,29 +66,40 @@ export default function FarmList() {
     };
 
     return (
-        <VStack spacing={4}>
-            <Text fontSize="2xl">Farm List</Text>
-            {farmContracts.map((farm, index) => (
-                <Box key={index} p={4} border="1px" borderRadius="md">
-                    <Text>Farm Address: {farm.address}</Text>
-                    <HStack mt={2}>
-                        <Input
-                            placeholder="Amount"
-                            value={amounts[index] || ''}
-                            onChange={(e) => setAmounts({
-                                ...amounts,
-                                [index]: e.target.value
-                            })}
-                        />
-                        <Button
-                            onClick={() => handleDeposit(farm, amounts[index], index)}
-                            isDisabled={!account}
-                        >
-                            Deposit
-                        </Button>
-                    </HStack>
-                </Box>
-            ))}
+        <VStack spacing={4} align="stretch">
+            <Text fontSize="xl">Available Farms: {farms?.length || 0}</Text>
+            {farms && farms.length > 0 ? (
+                farms.map((farmAddress, index) => {
+                    const farm = farmContracts[index]; // 获取对应的 farm 合约
+                    return (
+                        <Box key={index} p={4} border="1px" borderRadius="md" borderColor="gray.200">
+                            <Text>Farm Address: {farmAddress}</Text>
+                            <HStack mt={2}>
+                                <Input
+                                    placeholder="Amount to deposit"
+                                    value={amounts[index] || ''}
+                                    onChange={(e) => setAmounts({
+                                        ...amounts,
+                                        [index]: e.target.value
+                                    })}
+                                />
+                                <Button
+                                    colorScheme="blue"
+                                    onClick={() => handleDeposit(farm, amounts[index], index)}
+                                    isDisabled={!account}
+                                >
+                                    Deposit
+                                </Button>
+                            </HStack>
+                        </Box>
+                    );
+                })
+            ) : (
+                <Alert status="info">
+                    <AlertDescription />
+                    No farms available yet
+                </Alert>
+            )}
         </VStack>
     );
 }
