@@ -8,17 +8,17 @@ import {
     Text,
     VStack,
     HStack,
-    Input
+    Input,
+    Alert,
+    AlertIcon,
+    AlertDescription
 } from '@chakra-ui/react';
-import { useToast } from '@chakra-ui/toast';
-import { Alert, AlertDescription } from '@chakra-ui/react';
-
 
 export default function FarmList() {
     const { account, signer, farms } = useWeb3();
     const [farmContracts, setFarmContracts] = useState([]);
     const [amounts, setAmounts] = useState({});
-    const toast = useToast();
+    const [alert, setAlert] = useState(null);  // State for managing alerts
 
     useEffect(() => {
         if (signer && farms.length > 0) {
@@ -36,8 +36,9 @@ export default function FarmList() {
     if (!account) {
         return (
             <Alert status="warning">
+                <AlertIcon />
                 <AlertDescription>
-                Please connect your wallet first
+                    Please connect your wallet first
                 </AlertDescription>
             </Alert>
         );
@@ -47,20 +48,14 @@ export default function FarmList() {
         try {
             const tx = await farmContract.deposit(0, ethers.parseEther(amount));
             await tx.wait();
-            toast({
-                title: "Success",
-                description: "Successfully deposited tokens",
+            setAlert({
                 status: "success",
-                duration: 5000,
-                isClosable: true,
+                message: "Successfully deposited tokens"
             });
         } catch (error) {
-            toast({
-                title: "Error",
-                description: error.message,
+            setAlert({
                 status: "error",
-                duration: 5000,
-                isClosable: true,
+                message: error.message
             });
         }
     };
@@ -68,6 +63,12 @@ export default function FarmList() {
     return (
         <VStack spacing={4} align="stretch">
             <Text fontSize="xl">Available Farms: {farms?.length || 0}</Text>
+            {alert && (
+                <Alert status={alert.status}>
+                    <AlertIcon />
+                    <AlertDescription>{alert.message}</AlertDescription>
+                </Alert>
+            )}
             {farms && farms.length > 0 ? (
                 farms.map((farmAddress, index) => {
                     const farm = farmContracts[index]; // 获取对应的 farm 合约
@@ -96,8 +97,8 @@ export default function FarmList() {
                 })
             ) : (
                 <Alert status="info">
-                    <AlertDescription />
-                    No farms available yet
+                    <AlertIcon />
+                    <AlertDescription>No farms available yet</AlertDescription>
                 </Alert>
             )}
         </VStack>
